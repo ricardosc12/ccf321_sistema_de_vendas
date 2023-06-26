@@ -1,4 +1,5 @@
 const DATABASE_FILE = require('../config');
+const { getProduto } = require('./produtos');
 
 const sqlite3 = require('sqlite3').verbose();
 
@@ -116,6 +117,17 @@ function registrarVenda(venda) {
             return
         }
 
+        let valorTotal = 0;
+
+        for (const item of venda.itens) {
+            const produto = await getProduto(item.idProduto);
+            if (produto) {
+                valorTotal += produto.precoVenda * item.qtItem;
+            }
+        }
+
+        const valorPago = valorTotal - venda.desconto;
+
         // Inserir os dados da venda na tabela 'vendas'
         const queryVenda = `INSERT INTO vendas (idCliente, dataVenda, valorTotal, valorPago, desconto)
                    VALUES (?, ?, ?, ?, ?)`;
@@ -123,8 +135,8 @@ function registrarVenda(venda) {
         const valuesVenda = [
             venda.idCliente,
             venda.dataVenda,
-            venda.valorTotal,
-            venda.valorPago,
+            valorTotal,
+            valorPago,
             venda.desconto
         ];
 
@@ -176,8 +188,8 @@ function gerarRelatorioVendas() {
         const db = new sqlite3.Database(DATABASE_FILE);
 
         const query = `
-            SELECT v.id AS idVenda, v.dataVenda, v.valorTotal, c.nome AS nomeCliente, c.endereco, c.telefone,
-                p.descricao AS nomeProduto, i.qtItem, p.precoVenda
+            SELECT v.id AS idVenda, v.dataVenda, v.valorTotal, v.valorPago, c.nome AS nomeCliente, c.endereco, c.telefone,
+                p.descricao AS nomeProduto, i.qtItem, p.precoVenda, p.id as idProduto
             FROM vendas v
             INNER JOIN clientes c ON c.id = v.idCliente
             INNER JOIN items i ON i.idVenda = v.id
@@ -189,8 +201,39 @@ function gerarRelatorioVendas() {
                 console.error('Erro ao gerar o relatório de vendas:', err);
                 resolve({ status: false, message: 'Erro ao gerar o relatório de vendas' })
             } else {
+                const vendas = {}
+                rows.forEach((row, index) => {
+                    if (vendas[row.idVenda]) {
+                        vendas[row.idVenda].produtos.push({
+                            id: row.idProduto,
+                            preco: row.precoVenda,
+                            qt: row.qtItem,
+                            total: row.qtItem * row.precoVenda
+                        })
+                    }
+                    else {
+                        vendas[row.idVenda] = {
+                            idVenda: row.idVenda,
+                            dataVenda: row.dataVenda,
+                            valorPago: row.valorPago,
+                            valorTotal: row.valorTotal,
+                            nomeCliente: row.nomeCliente,
+                            endereco: row.endereco,
+                            telefone: row.telefone,
+                            produtos: [
+                                {
+                                    id: row.idProduto,
+                                    preco: row.precoVenda,
+                                    qt: row.qtItem,
+                                    total: row.qtItem * row.precoVenda
+                                }
+                            ]
+                        }
+                    }
+                })
                 console.log('Relatório de Vendas:');
-                resolve({ status: true, message: "Relatório gerado com sucesso!", dados: rows })
+                resolve({ status: true, message: "Relatório gerado com sucesso!", dados: Object.values(vendas) })
+                // resolve({ status: true, message: "Relatório gerado com sucesso!", dados: rows })
             }
 
             db.close();

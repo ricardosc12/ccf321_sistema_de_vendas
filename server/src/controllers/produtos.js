@@ -79,6 +79,34 @@ function listarProdutos() {
     })
 }
 
+function getProduto(idProduto) {
+    return new Promise((resolve) => {
+        const db = new sqlite3.Database(DATABASE_FILE);
+
+        const query = 'SELECT * FROM produtos WHERE id = ?';
+        db.get(query, [idProduto], (err, row) => {
+            if (err) {
+                console.error('Erro ao buscar o produto:', err);
+                resolve(null);
+            } else if (!row) {
+                console.error(`Produto com ID ${idProduto} não encontrado.`);
+                resolve(null);
+            } else {
+                const produto = {
+                    id: row.id,
+                    descricao: row.descricao,
+                    estoque: row.estoque,
+                    precoCusto: row.precoCusto,
+                    precoVenda: row.precoVenda,
+                    idFabricante: row.idFabricante
+                };
+                resolve(produto);
+            }
+            db.close();
+        });
+    });
+}
+
 // Exemplo de uso
 const novoProduto = {
     descricao: 'Produto exemplo',
@@ -90,4 +118,4 @@ const novoProduto = {
 
 // cadastrarProduto(novoProduto);
 
-module.exports = { cadastrarProduto, listarProdutos };
+module.exports = { cadastrarProduto, listarProdutos, getProduto };

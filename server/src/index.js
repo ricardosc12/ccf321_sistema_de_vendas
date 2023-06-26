@@ -7,9 +7,11 @@ const {registrarVenda, gerarRelatorioVendas} = require("./controllers/vendas");
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const cors = require('cors');
 
 app.use(bodyParser.json()); // Suporte a JSON
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors());
 
 // Rota de produtos
 app.post('/produtos/:acao', async (req, res) => {
@@ -75,7 +77,7 @@ app.post('/clientes/:acao', async (req, res) => {
 });
 
 // Porta em que o servidor irá escutar
-const port = 3000;
+const port = 3005;
 
 // Iniciar o servidor
 app.listen(port, () => {
