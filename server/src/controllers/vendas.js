@@ -205,6 +205,7 @@ function gerarRelatorioVendas() {
                 rows.forEach((row, index) => {
                     if (vendas[row.idVenda]) {
                         vendas[row.idVenda].produtos.push({
+                            nome: row.nomeProduto,
                             id: row.idProduto,
                             preco: row.precoVenda,
                             qt: row.qtItem,
@@ -223,6 +224,7 @@ function gerarRelatorioVendas() {
                             produtos: [
                                 {
                                     id: row.idProduto,
+                                    nome: row.nomeProduto,
                                     preco: row.precoVenda,
                                     qt: row.qtItem,
                                     total: row.qtItem * row.precoVenda

@@ -1,7 +1,7 @@
-const { cadastrarCidade, listarCidades } = require("./controllers/cidades");
-const { cadastrarCliente, listarClientes } = require("./controllers/clientes");
-const { cadastrarFabricante, listarFabricantes } = require("./controllers/fabricante");
-const { cadastrarProduto, listarProdutos } = require("./controllers/produtos");
+const { cadastrarCidade, listarCidades, removerCidade } = require("./controllers/cidades");
+const { cadastrarCliente, listarClientes, removerCliente } = require("./controllers/clientes");
+const { cadastrarFabricante, listarFabricantes, removerFabricante } = require("./controllers/fabricante");
+const { cadastrarProduto, listarProdutos, removerProduto } = require("./controllers/produtos");
 const {registrarVenda, gerarRelatorioVendas} = require("./controllers/vendas");
 
 const express = require('express');
@@ -24,6 +24,10 @@ app.post('/produtos/:acao', async (req, res) => {
         const resp = await listarProdutos()
         res.json(resp)
     }
+    else if (acao == "remover") {
+        const resp = await removerProduto(req.body)
+        res.json(resp)
+    }
 });
 
 // Rota de fabricantes
@@ -37,6 +41,10 @@ app.post('/fabricantes/:acao', async (req, res) => {
         const resp = await listarFabricantes()
         res.json(resp)
     }
+    else if (acao == "remover") {
+        const resp = await removerFabricante(req.body)
+        res.json(resp)
+    }
 });
 
 app.post('/cidades/:acao', async (req, res) => {
@@ -47,6 +55,10 @@ app.post('/cidades/:acao', async (req, res) => {
     }
     else if (acao == "listar") {
         const resp = await listarCidades()
+        res.json(resp)
+    }
+    else if (acao == "remover") {
+        const resp = await removerCidade(req.body)
         res.json(resp)
     }
 });
@@ -72,6 +84,10 @@ app.post('/clientes/:acao', async (req, res) => {
     }
     else if (acao == "listar") {
         const resp = await listarClientes()
+        res.json(resp)
+    }
+    else if (acao == "remover") {
+        const resp = await removerCliente(req.body)
         res.json(resp)
     }
 });

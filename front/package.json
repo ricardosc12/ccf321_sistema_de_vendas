@@ -18,7 +18,9 @@
     "vite-plugin-solid": "^2.7.0"
   },
   "dependencies": {
-    "@kobalte/core": "^0.9.6",
-    "solid-js": "^1.7.6"
+    "@hope-ui/solid": "^0.6.7",
+    "@stitches/core": "^1.2.8",
+    "solid-js": "^1.7.6",
+    "solid-transition-group": "^0.2.2"
   }
 }

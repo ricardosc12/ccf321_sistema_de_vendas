@@ -107,6 +107,27 @@ function getProduto(idProduto) {
     });
 }
 
+function removerProduto({ id: idProduto }) {
+    return new Promise((resolve) => {
+        const db = new sqlite3.Database(DATABASE_FILE);
+
+        const query = 'DELETE FROM produtos WHERE id = ?';
+        db.run(query, [idProduto], function (err) {
+            if (err) {
+                console.error('Erro ao remover o produto:', err);
+                resolve({ status: false, message: 'Erro ao remover o produto.' });
+            } else if (this.changes === 0) {
+                console.error(`Produto com ID ${idProduto} não encontrado.`);
+                resolve({ status: false, message: `Produto com ID ${idProduto} não encontrado.` });
+            } else {
+                console.log(`Produto com ID ${idProduto} removido com sucesso.`);
+                resolve({ status: true, message: `Produto com ID ${idProduto} removido com sucesso.` });
+            }
+            db.close();
+        });
+    });
+}
+
 // Exemplo de uso
 const novoProduto = {
     descricao: 'Produto exemplo',
@@ -118,4 +139,4 @@ const novoProduto = {
 
 // cadastrarProduto(novoProduto);
 
-module.exports = { cadastrarProduto, listarProdutos, getProduto };
+module.exports = { cadastrarProduto, listarProdutos, getProduto, removerProduto };

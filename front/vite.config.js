@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
+const path = require('path')
 // import devtools from 'solid-devtools/vite';
 
 export default defineConfig({
@@ -11,5 +12,10 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
   },
 });

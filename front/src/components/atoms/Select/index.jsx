@@ -1,30 +1,47 @@
-import { Select as SE } from "@kobalte/core";
-import "./style.css";
+import {
+    Select as SelectHope, SelectTrigger, SelectPlaceholder,
+    SelectValue, SelectIcon, SelectContent, SelectListbox,
+    SelectOption, SelectOptionText, SelectOptionIndicator, FormControl, FormLabel
+} from "@hope-ui/solid";
+import { For, createEffect, createSignal } from "solid-js";
 
-export function Select({ label, data, id, ...props }) {
+
+export function Select(props) {
+    
+    const [value, setValue] = createSignal(props.defaultValue || "")
+
+    createEffect(()=>{
+        setValue(props.defaultValue)
+    })
+
+    const onChange=(e)=>{
+        setValue(e)
+        props.onChange&&props.onChange(e)
+    }
+
     return (
-        <SE.Root
-            name={id}
-            options={data}
-            optionValue="value"
-            optionTextValue="label"      
-            placeholder={label}
-            itemComponent={props => (
-                <SE.Item item={props.item} class="select__item">
-                    <SE.ItemLabel>{props.item.rawValue.label}</SE.ItemLabel>
-                </SE.Item>
-            )}
-        >
-            <SE.Trigger class="select__trigger" aria-label={label}>
-                <SE.Value class="select__value">
-                    {state => state.selectedOption().label}
-                </SE.Value>
-            </SE.Trigger>
-            <SE.Portal>
-                <SE.Content class="select__content">
-                    <SE.Listbox class="select__listbox" />
-                </SE.Content>
-            </SE.Portal>
-        </SE.Root>
+        <FormControl>
+            <input class="hidden" type="text" id={props.id} value={value()}/>
+            {!props.disabledLabel?<FormLabel for={props.id}>{props.label}</FormLabel>:""}
+            <SelectHope {...props} onChange={onChange}> 
+                <SelectTrigger>
+                    <SelectPlaceholder>{props.label}</SelectPlaceholder>
+                    <SelectValue />
+                    <SelectIcon />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectListbox>
+                        <For each={props.data}>
+                            {item => (
+                                <SelectOption value={item.value}>
+                                    <SelectOptionText>{item.label}</SelectOptionText>
+                                    <SelectOptionIndicator />
+                                </SelectOption>
+                            )}
+                        </For>
+                    </SelectListbox>
+                </SelectContent>
+            </SelectHope>
+        </FormControl>
     );
 }

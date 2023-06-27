@@ -44,6 +44,27 @@ function listarCidades() {
     })
 }
 
+function removerCidade({ id: idCidade }) {
+    return new Promise((resolve) => {
+        const db = new sqlite3.Database(DATABASE_FILE);
+
+        const query = 'DELETE FROM cidades WHERE id = ?';
+        db.run(query, [idCidade], function (err) {
+            if (err) {
+                console.error('Erro ao remover o fabricante:', err);
+                resolve({ status: false, message: 'Erro ao remover o fabricante.' });
+            } else if (this.changes === 0) {
+                console.error(`Fabricante com ID ${idCidade} não encontrado.`);
+                resolve({ status: false, message: `Fabricante com ID ${idCidade} não encontrado.` });
+            } else {
+                console.log(`Fabricante com ID ${idCidade} removido com sucesso.`);
+                resolve({ status: true, message: `Fabricante com ID ${idCidade} removido com sucesso.` });
+            }
+            db.close();
+        });
+    });
+}
+
 // Exemplo de uso
 const novaCidade = {
     nome: 'Florestal',
@@ -52,4 +73,4 @@ const novaCidade = {
 
 // cadastrarCidade(novaCidade);
 
-module.exports = { cadastrarCidade, listarCidades };
+module.exports = { cadastrarCidade, listarCidades, removerCidade };

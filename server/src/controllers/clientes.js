@@ -73,6 +73,26 @@ function listarClientes() {
     })
 }
 
+function removerCliente({ id: idCliente }) {
+    return new Promise((resolve) => {
+        const db = new sqlite3.Database(DATABASE_FILE);
+
+        const query = 'DELETE FROM clientes WHERE id = ?';
+        db.run(query, [idCliente], function (err) {
+            if (err) {
+                console.error('Erro ao remover o cliente:', err);
+                resolve({ status: false, message: 'Erro ao remover o cliente.' });
+            } else if (this.changes === 0) {
+                console.error(`Cliente com ID ${idCliente} não encontrado.`);
+                resolve({ status: false, message: `Cliente com ID ${idCliente} não encontrado.` });
+            } else {
+                console.log(`Cliente com ID ${idCliente} removido com sucesso.`);
+                resolve({ status: true, message: `Cliente com ID ${idCliente} removido com sucesso.` });
+            }
+            db.close();
+        });
+    });
+}
 
 // Exemplo de uso
 const novoCliente = {
@@ -84,4 +104,4 @@ const novoCliente = {
 
 // cadastrarCliente(novoCliente);
 
-module.exports = { cadastrarCliente, listarClientes };
+module.exports = { cadastrarCliente, listarClientes, removerCliente };

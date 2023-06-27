@@ -76,6 +76,27 @@ function listarFabricantes() {
     })
 }
 
+function removerFabricante({ id: idFabricante }) {
+    return new Promise((resolve) => {
+        const db = new sqlite3.Database(DATABASE_FILE);
+
+        const query = 'DELETE FROM fabricantes WHERE id = ?';
+        db.run(query, [idFabricante], function (err) {
+            if (err) {
+                console.error('Erro ao remover o fabricante:', err);
+                resolve({ status: false, message: 'Erro ao remover o fabricante.' });
+            } else if (this.changes === 0) {
+                console.error(`Fabricante com ID ${idFabricante} não encontrado.`);
+                resolve({ status: false, message: `Fabricante com ID ${idFabricante} não encontrado.` });
+            } else {
+                console.log(`Fabricante com ID ${idFabricante} removido com sucesso.`);
+                resolve({ status: true, message: `Fabricante com ID ${idFabricante} removido com sucesso.` });
+            }
+            db.close();
+        });
+    });
+}
+
 // Exemplo de uso
 const novoFabricante = {
     nome: 'Novo fabricante 2',
@@ -84,4 +105,4 @@ const novoFabricante = {
 
 // cadastrarFabricante(novoFabricante);
 
-module.exports = { cadastrarFabricante, listarFabricantes };
+module.exports = { cadastrarFabricante, listarFabricantes, removerFabricante };
