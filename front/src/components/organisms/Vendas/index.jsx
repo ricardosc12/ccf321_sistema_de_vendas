@@ -1,4 +1,4 @@
-import { createSignal, onMount } from "solid-js"
+import { createSignal, onMount, createMemo } from "solid-js"
 import { relatorioVendas } from "../../../api/vendas"
 
 
@@ -7,6 +7,16 @@ export default function VendasPage() {
     const [state, setState] = createSignal({
         loading: true,
         vendas: []
+    })
+
+    const totais = createMemo(() => {
+        let totalValor = 0
+
+        state().vendas.forEach(venda => {
+            totalValor += venda.valorPago
+        })
+
+        return { totalValor, totalVendas: state().vendas.length }
     })
 
     onMount(() => {
@@ -23,10 +33,18 @@ export default function VendasPage() {
     return (
         <div>
             <div class="flex items-center mb-5">
-                <h2 class="mr-3">Relatório de vendas</h2>
-                {state().loading ? <h4 class="text-slate-500">Carregando...</h4> : ""}
+                <div class="flex items-start justify-between w-full">
+                    <div>
+                        <h2 class="mr-3 text-slate-50 font-bold text-xl">Relatório de vendas</h2>
+                        {state().loading ? <h4 class="text-slate-500">Carregando...</h4> : ""}
+                    </div>
+                    <div class="text-slate-50 font-bold text-lg">
+                        <h2>Total: R$ {totais().totalValor}</h2>
+                        <h2>Vendas: {totais().totalVendas}</h2>
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col text-slate-50 font-bold">
                 <For each={state().vendas}>
                     {(({ idVenda, dataVenda, produtos, endereco, nomeCliente, valorPago, valorTotal }) => {
                         return (

@@ -1,0 +1,3 @@
+.input[invalid="true"] {
+    border: 2px solid rgb(255, 50, 50) !important;
+}

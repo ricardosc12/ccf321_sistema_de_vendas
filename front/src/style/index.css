@@ -6,3 +6,38 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0;
     padding: 0;
 }
+
+.main-page {
+    width: calc(100% - 30px);
+    height: calc(100% - 144px);
+    background-color: #024959;
+    box-shadow: 0px 0px 0px 30px #024959;
+    border-radius: 10px;
+}
+
+.page-header {
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    height: 9rem;
+    padding-bottom: 2.25rem;
+    text-decoration: underline white;
+}
+
+.page-header::before {
+    content: '';
+    width: 100%;
+    height: calc(100% + 35px);
+    position: absolute;
+    background-image: url("../assets/background.jpg");
+    background-position: center center;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    filter: brightness(0.5);
+    z-index: -1;
+}
+
+.button {
+    @apply w-full px-3 py-1 rounded-md cursor-pointer font-medium
+}

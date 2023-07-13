@@ -7,6 +7,8 @@ import { getInputs } from "../../hooks/form"
 import { Select } from "../../atoms/Select"
 import { criarCliente, listarClientes, removerCliente as removerClienteApi } from "../../../api/clientes"
 
+import ImageCliente from '../../../assets/client.png'
+
 
 export default function ClientesPage() {
 
@@ -76,42 +78,59 @@ export default function ClientesPage() {
     return (
         <div>
             <form onsubmit={onSubmit} class="mb-5">
-                <h2 class="mb-5">Cadastrar cliente</h2>
+                <h2 class="mb-5 text-slate-50 font-bold text-xl">Cadastrar cliente</h2>
                 <div class="flex flex-wrap flex-col space-y-3">
                     <div class="flex space-x-5">
-                        <TextField invalid={form().nome} label={"Nome"} id="nome" />
+                        <TextField required invalid={form().nome} label={"Nome"} id="nome" />
                         <TextField invalid={form().estado} label={"Telefone"} id="telefone" />
                     </div>
                     <div class="flex space-x-5">
-                        <TextField invalid={form().endereco} label={"Endereco"} id="endereco" />
+                        <TextField required invalid={form().endereco} label={"Endereco"} id="endereco" />
                     </div>
                     <div>
-                        <Select invalid={form().idCidade} id="idCidade" label={"Cidade"} data={cidades()} />
+                        <Select required invalid={form().idCidade} id="idCidade" label={"Cidade"} data={cidades()} />
                     </div>
                 </div>
                 <Button onclick={onSubmit} class="w-full mt-5">Cadastrar cliente</Button>
             </form>
             <div>
                 <div class="flex items-center mb-5">
-                    <h2 class="mr-3">Lista de clientes</h2>
+                    <h2 class="mr-3 text-slate-50 font-bold text-xl">Lista de clientes</h2>
                     {state().loading ? <h4 class="text-slate-500">Carregando...</h4> : ""}
                 </div>
                 <div class="flex space-x-5">
                     <For each={dados.clientes}>
-                        {(({ id, nome, endereco, telefone, idCidade }) => {
-                            return (
-                                <div>
-                                    <div>{nome}</div>
-                                    <div>{endereco}</div>
-                                    <div>{telefone}</div>
-                                    <div>{dados.cidades.find(city=>city.id==idCidade)?.nome}</div>
-                                    <button onclick={() => handleRemove(id)}>remover</button>
-                                </div>
-                            )
+                        {(({ id, nome, endereco, telefone, idCidade, }) => {
+                            return <ItemCliente nome={nome}
+                                endereco={endereco} telefone={telefone}
+                                cidade={dados.cidades.find(city => city.id == idCidade)?.nome}
+                            />
                         })}
                     </For>
                 </div>
             </div>
+        </div>
+    )
+}
+
+function ItemCliente(props) {
+    return (
+        <div class="flex w-72 bg-slate-50 rounded-lg px-5 py-3">
+            <div class="w-7">
+                <img src={ImageCliente} />
+            </div>
+            <div class="ml-4 w-full">
+                <h3 class="text-base font-bold mb-2">{props.nome}</h3>
+                <div class="text-sm mb-3">
+                    <div><b>Endereço:</b> {props.endereco}</div>
+                    <div><b>Telefone:</b> {props.telefone}</div>
+                    <div><b>Cidade:</b> {props.cidade}</div>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="button bg-red-600 text-slate-50 hover:bg-red-500" onclick={() => handleRemove(id)}>Remover</button>
+                </div>
+            </div>
+
         </div>
     )
 }

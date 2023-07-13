@@ -22,10 +22,10 @@ export function Select(props) {
     return (
         <FormControl>
             <input class="hidden" type="text" id={props.id} value={value()}/>
-            {!props.disabledLabel?<FormLabel for={props.id}>{props.label}</FormLabel>:""}
+            {!props.disabledLabel?<FormLabel style="color:rgb(248 250 252);" for={props.id}>{props.label} {props.required?" *":""}</FormLabel>:""}
             <SelectHope {...props} onChange={onChange}> 
-                <SelectTrigger>
-                    <SelectPlaceholder>{props.label}</SelectPlaceholder>
+                <SelectTrigger style="background:rgb(248 250 252);color:black;">
+                    <SelectPlaceholder style="color:rgba(90,90,90);">{props.label}</SelectPlaceholder>
                     <SelectValue />
                     <SelectIcon />
                 </SelectTrigger>

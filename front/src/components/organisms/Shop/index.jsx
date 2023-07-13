@@ -7,6 +7,9 @@ import { useStorage } from "../../../storage/context"
 import { getInputs } from "../../hooks/form"
 import { registrarVenda } from "../../../api/vendas"
 
+import ImageProduct from '../../../assets/package.png'
+import ImageCart from '../../../assets/cart.png'
+
 function formatDate() {
     const time = new Date()
     return `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()}`
@@ -29,35 +32,37 @@ export default function ShopPage() {
 
     const { dados, dispatch: { addCarrinho, increaseCarrinho, setCarrinho } } = useStorage()
 
-    const clientes = createMemo(() => {
-        return dados.clientes.map(fab => ({
+    const fabricantes = createMemo(() => {
+        return dados.fabricantes.map(fab => ({
             value: fab.id,
             label: fab.nome
         }))
     })
 
+    async function getProdutos() {
+        const resp = await listarProdutos()
+        if (resp.status == false) {
+            setState(prev => ({ ...prev, loading: false }))
+            return
+        }
+        setState(prev => ({ ...prev, loading: false, produtos: resp.dados }))
+    }
+
     onMount(() => {
-        (async () => {
-            const resp = await listarProdutos()
-            if (resp.status == false) {
-                setState(prev => ({ ...prev, loading: false }))
-                return
-            }
-            setState(prev => ({ ...prev, loading: false, produtos: resp.dados }))
-        })()
+        getProdutos()
     })
 
     async function onSubmit() {
-        const inputs = getInputs(["idCliente"])
-        const erros = {}
+        const cliente = dados.clienteAtivo
 
-        Object.entries(inputs).map(([id, value]) => {
-            if (!value) erros[id] = true
-        })
+        if (cliente === undefined || cliente === null || cliente === false) {
+            notificationService.show({
+                status: "info",
+                title: "Venda não registrada",
+                description: "Selecione um cliente ou crie um para começar.",
+                duration: 2_000,
+            });
 
-        setForm(erros)
-
-        if (Object.values(erros).length) {
             return
         }
 
@@ -72,7 +77,7 @@ export default function ShopPage() {
         }
 
         const request = {
-            ...inputs,
+            idCliente: cliente,
             dataVenda: formatDate(),
             desconto: 10,
             itens: dados.carrinho.map(item => ({
@@ -91,13 +96,14 @@ export default function ShopPage() {
                 duration: 2_000,
             });
             setCarrinho([])
+            getProdutos()
             return
         }
         else {
             notificationService.show({
                 status: "warning",
                 title: "Venda",
-                description: Array.isArray(resp.mensagens)?resp.mensagens.join("-"):resp.mensagens,
+                description: Array.isArray(resp.mensagens) ? resp.mensagens.join("-") : resp.mensagens,
                 duration: 4_000,
             });
         }
@@ -121,52 +127,89 @@ export default function ShopPage() {
         <div>
             <form onsubmit={onSubmit} class="mb-5">
                 <div class="flex w-full justify-between items-center">
-                    <h2 class="w-2/4">Shopping</h2>
-                    <div class="flex items-center w-2/4">
-                        <h2 class="w-36">Logado com: </h2>
-                        <Select disabledLabel defaultValue={clientes()[0]?.value} invalid={form().idCliente} id="idCliente" label={"Cliente"} data={clientes()} />
-                    </div>
-
+                    <h2 class="w-2/4 text-slate-50 font-bold text-xl">Shopping</h2>
                 </div>
                 <Button onclick={onSubmit} class="w-full mt-5">Comprar</Button>
             </form>
             <div class="flex flex-col">
                 <div class="flex flex-col mb-5">
-                    <h2 class="mr-3">Carrinho</h2>
+                    <h2 class="mr-3 text-slate-50 font-bold text-xl">Carrinho</h2>
                     {!dados.carrinho?.length ? <h4 class="text-slate-500">Vazio</h4> : ""}
                     <div class="flex space-x-4">
                         <For each={dados.carrinho}>
                             {(item) => {
-                                return (
-                                    <div>
-                                        <div>{item.descricao}</div>
-                                        <div>{item.qt}</div>
-                                    </div>
-                                )
+                                return <ItemCarrinho descricao={item.descricao} qt={item.qt} />
                             }}
                         </For>
                     </div>
                 </div>
                 <div class="flex items-center mb-5">
-                    <h2 class="mr-3">Lista de Produtos</h2>
+                    <h2 class="mr-3 text-slate-50 font-bold text-xl">Lista de Produtos</h2>
                     {state().loading ? <h4 class="text-slate-500">Carregando...</h4> : ""}
                 </div>
                 <div class="flex space-x-5">
                     <For each={state().produtos}>
-                        {(({ id, descricao, estoque, precoCusto, precoVenda }) => {
-                            return (
-                                <div>
-                                    <div>{descricao}</div>
-                                    <div>{estoque}</div>
-                                    <div>{precoCusto}</div>
-                                    <div>{precoVenda}</div>
-                                    <button onclick={() => addCarrinho_(id)}>adicionar</button>
-                                </div>
-                            )
+                        {(({ id, descricao, estoque, precoCusto, precoVenda, idFabricante }) => {
+                            return <ItemProduto fabricante={fabricantes().find(item => item.value == idFabricante)?.label} addCarrinho_={addCarrinho_} id={id}
+                                descricao={descricao} estoque={estoque} precoCusto={precoCusto} precoVenda={precoVenda}
+                            />
                         })}
                     </For>
                 </div>
             </div>
         </div>
     )
+}
+
+
+function ItemProduto(props) {
+    return (
+        <div class="flex w-72 bg-slate-50 rounded-lg px-5 py-3">
+            <div class="w-7">
+                <img src={ImageProduct} />
+            </div>
+            <div class="ml-4 w-full">
+                <h3 class="text-base font-bold mb-2">{props.descricao}</h3>
+                <div class="text-sm mb-2">
+                    <div><b>Estoque:</b> {props.estoque}</div>
+                    <div><b>Fabricante:</b> {props.fabricante}</div>
+                </div>
+                <div class="flex justify-between w-full font-medium mb-3">
+                    <div>
+                        <b>Custo</b>
+                        <div>R$ {props.precoCusto}</div>
+                    </div>
+                    <div>
+                        <b>Venda</b>
+                        <div>R$ {props.precoVenda}</div>
+                    </div>
+
+                </div>
+                <div class="flex space-x-3">
+                    <button class="button bg-green-600 text-slate-50 hover:bg-green-500" onclick={() => props.addCarrinho_(props.id)}>Adicionar ao carrinho</button>
+                </div>
+            </div>
+
+        </div>
+    )
+}
+
+function ItemCarrinho(props) {
+    return (
+        <div class="flex w-72 bg-slate-50 rounded-lg px-5 py-3">
+            <div class="w-7">
+                <img src={ImageCart} />
+            </div>
+            <div class="ml-4 w-full">
+                <h3 class="text-base font-bold mb-2">{props.descricao}</h3>
+                <div class="text-sm mb-2">
+                    <div><b>Quantidade:</b> {props.qt}</div>
+                </div>
+                <div class="flex space-x-3">
+                    <button class="button bg-red-600 text-slate-50 hover:bg-red-500" onclick={() => { }}>Remover</button>
+                </div>
+            </div>
+        </div>
+    )
+
 }
