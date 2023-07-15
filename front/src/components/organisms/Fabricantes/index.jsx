@@ -78,7 +78,7 @@ export default function FabricantesPage() {
                     <h2 class="mr-3 text-slate-50 font-bold text-xl">Lista de fabricantes</h2>
                     {state().loading ? <h4 class="text-slate-500">Carregando...</h4> : ""}
                 </div>
-                <div class="flex space-x-5">
+                <div class="flex flex-wrap">
                     <For each={dados.fabricantes}>
                         {(({ id, nome, site }) => {
                             return <ItemFabricante nome={nome} site={site}/>
@@ -92,7 +92,7 @@ export default function FabricantesPage() {
 
 function ItemFabricante(props) {
     return (
-        <div class="flex w-72 bg-slate-50 rounded-lg px-5 py-3">
+        <div class="flex w-72 bg-slate-50 rounded-lg px-5 py-3 mr-4 mb-4">
             <div class="w-7">
                 <img src={ImagemFactory} />
             </div>

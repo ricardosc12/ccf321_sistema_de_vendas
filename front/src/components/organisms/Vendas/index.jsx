@@ -39,7 +39,7 @@ export default function VendasPage() {
                         {state().loading ? <h4 class="text-slate-500">Carregando...</h4> : ""}
                     </div>
                     <div class="text-slate-50 font-bold text-lg">
-                        <h2>Total: R$ {totais().totalValor}</h2>
+                        <h2>Total: R$ {parseFloat(totais().totalValor).toFixed(2)}</h2>
                         <h2>Vendas: {totais().totalVendas}</h2>
                     </div>
                 </div>
@@ -48,8 +48,8 @@ export default function VendasPage() {
                 <For each={state().vendas}>
                     {(({ idVenda, dataVenda, produtos, endereco, nomeCliente, valorPago, valorTotal }) => {
                         return (
-                            <>
-                                <table>
+                            <div class="w-full bg-slate-300 text-slate-900 mb-7 rounded p-2 px-4">
+                                <table class="w-full">
                                     <thead>
                                         <tr>
                                             <th class="text-left">Id: {idVenda}</th>
@@ -57,7 +57,7 @@ export default function VendasPage() {
                                         </tr>
                                     </thead>
                                 </table>
-                                <table>
+                                <table class="w-full">
                                     <thead>
                                         <tr>
                                             <th class="text-left">Nome</th>
@@ -81,7 +81,7 @@ export default function VendasPage() {
                                         </For>
                                     </tbody>
                                 </table>
-                                <table class="mb-7">
+                                <table class="w-full">
                                     <thead>
                                         <tr>
                                             <th class="text-left">Cliente: {nomeCliente}</th>
@@ -91,7 +91,7 @@ export default function VendasPage() {
                                         </tr>
                                     </thead>
                                 </table>
-                            </>
+                            </div>
                         )
                     })}
                 </For>
