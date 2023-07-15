@@ -128,6 +128,38 @@ function removerProduto({ id: idProduto }) {
     });
 }
 
+function adicionarProduto({ id: idProduto }) {
+    const quantidade = 1
+    return new Promise((resolve) => {
+        const db = new sqlite3.Database(DATABASE_FILE);
+
+        // Verificar se o produto existe
+        const existeProdutoQuery = 'SELECT * FROM produtos WHERE id = ?';
+        db.get(existeProdutoQuery, [idProduto], (err, row) => {
+            if (err) {
+                console.error('Erro ao verificar a existência do produto:', err);
+                resolve({ status: false, message: 'Erro ao verificar a existência do produto.' });
+            } else if (!row) {
+                console.error(`Produto com ID ${idProduto} não encontrado.`);
+                resolve({ status: false, message: `Produto com ID ${idProduto} não encontrado.` });
+            } else {
+                // Atualizar a quantidade do produto
+                const atualizarQuantidadeQuery = 'UPDATE produtos SET estoque = estoque + ? WHERE id = ?';
+                db.run(atualizarQuantidadeQuery, [quantidade, idProduto], function (err) {
+                    if (err) {
+                        console.error('Erro ao adicionar a quantidade ao produto:', err);
+                        resolve({ status: false, message: 'Erro ao adicionar a quantidade ao produto.' });
+                    } else {
+                        console.log(`Quantidade ${quantidade} adicionada ao produto com ID ${idProduto}.`);
+                        resolve({ status: true, message: `Quantidade ${quantidade} adicionada ao produto com ID ${idProduto}.` });
+                    }
+                    db.close();
+                });
+            }
+        });
+    });
+}
+
 // Exemplo de uso
 const novoProduto = {
     descricao: 'Produto exemplo',
@@ -139,4 +171,4 @@ const novoProduto = {
 
 // cadastrarProduto(novoProduto);
 
-module.exports = { cadastrarProduto, listarProdutos, getProduto, removerProduto };
+module.exports = { cadastrarProduto, listarProdutos, getProduto, removerProduto, adicionarProduto };

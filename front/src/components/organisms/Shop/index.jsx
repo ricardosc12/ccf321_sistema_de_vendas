@@ -30,7 +30,7 @@ export default function ShopPage() {
         idFabricante: false
     })
 
-    const { dados, dispatch: { addCarrinho, increaseCarrinho, setCarrinho } } = useStorage()
+    const { dados, dispatch: { addCarrinho, increaseCarrinho, setCarrinho, removerCarrinho } } = useStorage()
 
     const fabricantes = createMemo(() => {
         return dados.fabricantes.map(fab => ({
@@ -138,7 +138,7 @@ export default function ShopPage() {
                     <div class="flex space-x-4">
                         <For each={dados.carrinho}>
                             {(item) => {
-                                return <ItemCarrinho descricao={item.descricao} qt={item.qt} />
+                                return <ItemCarrinho id={item.id} removerCarrinho={removerCarrinho} descricao={item.descricao} qt={item.qt} />
                             }}
                         </For>
                     </div>
@@ -206,7 +206,7 @@ function ItemCarrinho(props) {
                     <div><b>Quantidade:</b> {props.qt}</div>
                 </div>
                 <div class="flex space-x-3">
-                    <button class="button bg-red-600 text-slate-50 hover:bg-red-500" onclick={() => { }}>Remover</button>
+                    <button class="button bg-red-600 text-slate-50 hover:bg-red-500" onclick={() => props.removerCarrinho(props.id)}>Remover</button>
                 </div>
             </div>
         </div>

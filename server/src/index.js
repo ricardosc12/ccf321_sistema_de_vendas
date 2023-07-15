@@ -1,8 +1,8 @@
 const { cadastrarCidade, listarCidades, removerCidade } = require("./controllers/cidades");
 const { cadastrarCliente, listarClientes, removerCliente } = require("./controllers/clientes");
 const { cadastrarFabricante, listarFabricantes, removerFabricante } = require("./controllers/fabricante");
-const { cadastrarProduto, listarProdutos, removerProduto } = require("./controllers/produtos");
-const {registrarVenda, gerarRelatorioVendas} = require("./controllers/vendas");
+const { cadastrarProduto, listarProdutos, removerProduto, adicionarProduto } = require("./controllers/produtos");
+const { registrarVenda, gerarRelatorioVendas } = require("./controllers/vendas");
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -26,6 +26,10 @@ app.post('/produtos/:acao', async (req, res) => {
     }
     else if (acao == "remover") {
         const resp = await removerProduto(req.body)
+        res.json(resp)
+    }
+    else if (acao == "adicionar") {
+        const resp = await adicionarProduto(req.body)
         res.json(resp)
     }
 });

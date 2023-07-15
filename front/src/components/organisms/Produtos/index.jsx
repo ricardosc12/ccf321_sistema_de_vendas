@@ -1,5 +1,5 @@
 import { createMemo, createSignal, onMount } from "solid-js"
-import { criarProduto, listarProdutos, removerProduto } from "../../../api/produtos"
+import { adicionarProduto, criarProduto, listarProdutos, removerProduto } from "../../../api/produtos"
 import { TextField } from "../../atoms/TextField"
 import { Select } from "../../atoms/Select"
 import { Button } from "../../atoms/Button"
@@ -83,6 +83,24 @@ export default function ProdutosPage() {
         }
     }
 
+    const [loadingAdd, setLoadingAdd] = createSignal(false)
+
+    async function handleAdicionar(id) {
+        if (loadingAdd()) return
+        setLoadingAdd(true)
+        const resp = await adicionarProduto({ id })
+        if (resp.status == true) {
+            const newProdutos = JSON.parse(JSON.stringify(state().produtos))
+            const index = newProdutos.findIndex(prod => prod.id == id)
+            if (index != -1) {
+                newProdutos[index].estoque += 1
+                setState(prev => ({ ...prev, produtos: newProdutos }))
+            }
+
+        }
+        setLoadingAdd(false)
+    }
+
     return (
         <div>
             <form onsubmit={onSubmit} class="mb-5">
@@ -110,7 +128,9 @@ export default function ProdutosPage() {
                 <div class="flex space-x-5">
                     <For each={state().produtos}>
                         {(({ id, descricao, estoque, precoCusto, precoVenda, idFabricante }) => {
-                            return <ItemProduto fabricante={fabricantes().find(item => item.value == idFabricante)?.label} handleRemove={handleRemove} id={id}
+                            return <ItemProduto loadingAdd={loadingAdd}
+                                fabricante={fabricantes().find(item => item.value == idFabricante)?.label}
+                                handleAdicionar={handleAdicionar} handleRemove={handleRemove} id={id}
                                 descricao={descricao} estoque={estoque} precoCusto={precoCusto} precoVenda={precoVenda}
                             />
                         })}
@@ -145,7 +165,7 @@ function ItemProduto(props) {
 
                 </div>
                 <div class="flex space-x-3">
-                    <button class="button bg-green-600 text-slate-50 hover:bg-green-500" onclick={()=>{}}>Adicionar</button>
+                    <button class={`button bg-green-600 text-slate-50 hover:bg-green-500 `} onclick={() => props.handleAdicionar(props.id)}>Adicionar</button>
                     <button class="button bg-red-600 text-slate-50 hover:bg-red-500" onclick={() => props.handleRemove(props.id)}>Remover</button>
                 </div>
             </div>

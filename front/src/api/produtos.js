@@ -11,3 +11,7 @@ export function criarProduto(params) {
 export function removerProduto(params) {
     return api.post("/produtos/remover", params)
 }
+
+export function adicionarProduto(params) {
+    return api.post("/produtos/adicionar", params)
+}
